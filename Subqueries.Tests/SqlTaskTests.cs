@@ -13,8 +13,6 @@ namespace Subqueries.Tests
         private const int FilesCount = 3;
         private static readonly string ProjectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
         private static readonly string DatabaseFile = Path.Combine(ProjectDirectory, "DB", "marketplace.db");
-        private static readonly string EmptyDatabaseFile = Path.Combine(ProjectDirectory, "DB", "empty_tables.db");
-        private static readonly string InsertFile = Path.Combine(ProjectDirectory, "Data", "insert.sql");
         private static readonly string[] FileNames = { "task1.sql", "task2.sql", "task3.sql" };
         private static readonly string[] QueryFiles = SqlTask.GetFilePaths(FileNames);
         private static readonly string[] Queries = QueryHelper.GetQueries(QueryFiles);
@@ -179,28 +177,6 @@ namespace Subqueries.Tests
             var message = $"The file '{FileNames[index]}' contains no entries.";
             if (string.IsNullOrWhiteSpace(actual))
                 Assert.Fail(message);
-        }
-
-        private static void InsertData()
-        {
-            var queries = QueryHelper.GetQueries(InsertFile);
-            foreach (var query in queries)
-            {
-                var command = new SqliteCommand(query, SqliteHelper.Connection);
-                command.ExecuteNonQuery();
-            }
-        }
-
-        private static void SerializeResultFiles()
-        {
-            for (var i = 0; i < FilesCount; i++)
-            {
-                var query = Queries[i];
-                var file = Path.ChangeExtension(FileNames[i], ".csv");
-                file = Path.Combine(ProjectDirectory, "Data", file);
-                var result = SelectHelper.GetResult(query);
-                SelectHelper.SerializeResult(result, file);
-            }
         }
 
         private static void DeserializeResultFiles()

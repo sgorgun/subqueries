@@ -3,18 +3,18 @@ INTEGER,CHAR,DOUBLE
 1,Red Apple,10.11
 21,carp,10.11
 6,Orange,12.0
-26,Shark,12.0
+26,Vodka,12.0
 13,Carrot,12.23
 33,Carrot,12.23
 42,Red Apple,12.23
 7,Water,13.0
 27,carp,13.0
 3,Banana,15.0
-23,Shark,15.0
+23,Vodka,15.0
 5,Orange,16.2
-25,Shark,16.2
+25,Vodka,16.2
 4,Banana,20.0
-24,Shark,20.0
+24,Vodka,20.0
 17,Cabbage,32.0
 37,Cabbage,32.0
 46,Orange,32.0
