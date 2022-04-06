@@ -6,10 +6,13 @@ using System.Text.RegularExpressions;
 
 namespace AutocodeDB.Helpers
 {
-    internal static class QueryHelper
+    public static class QueryHelper
     {
-        private const string BlockComments = @"([\s;]|^)(/\*[\s\S]*?(\*/))";
+        private const string Comments = @"\/\*[\s\S]*?\*\/|\-\-.*$";//"([\s;]|^)(/\*[\s\S]*?(\*/))";
+        #region Remove region if     ^^^^^^^^ "Comments" regex works
+        private const string BlockComments = @"\/\*[\s\S]*?\*\/|\-\-.*$";//"([\s;]|^)(/\*[\s\S]*?(\*/))";
         private const string LineComments = @"--(.*$?)";
+        #endregion
         public static string GetQuery(string file)
         {
             if (!File.Exists(file))
@@ -51,8 +54,9 @@ namespace AutocodeDB.Helpers
         public static bool IsQueryCorrect(IEnumerable<string> queries, Func<string, bool> isCorrect) => queries.Any(isCorrect);
         public static string RemoveComments(string rawData)
         {
-            rawData = Regex.Replace(rawData, LineComments, "", RegexOptions.Multiline);
-            rawData = Regex.Replace(rawData, BlockComments, "", RegexOptions.Singleline);
+            //rawData = Regex.Replace(rawData, LineComments, "", RegexOptions.Multiline);
+            //rawData = Regex.Replace(rawData, BlockComments, "", RegexOptions.Singleline);
+            rawData = Regex.Replace(rawData, Comments, "", RegexOptions.Multiline);
             rawData = Regex.Replace(rawData, @"\s+", " ");
             return rawData;
         }

@@ -2,7 +2,7 @@
 
 namespace AutocodeDB.Helpers
 {
-    internal static class InsertHelper
+    public static class InsertHelper
     {
         private static readonly Regex InsertRegExp = new Regex(@"^\s*INSERT\s+INTO.*\s*VALUES", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 

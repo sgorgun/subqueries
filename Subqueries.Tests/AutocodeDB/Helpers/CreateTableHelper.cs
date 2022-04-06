@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using AutocodeDB.Models;
 using AutocodeDB.Parsers;
@@ -55,6 +56,17 @@ namespace AutocodeDB.Helpers
                 ++i;
                 _tableMap.Add(table.TableName, table);
             }
+        }
+        public static void ResetMap()
+        {
+            _tableMap=null; 
+        }
+
+        public static string MapToString()
+        {
+            if(_tableMap==null)
+                return "string.Empty";
+            return string.Join(",", _tableMap.Keys);
         }
     }
 }

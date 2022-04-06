@@ -51,7 +51,7 @@ namespace AutocodeDB.Parsers
                     {
                         if (null == rm.Groups["colName"].Value || null == rm.Groups["colType"].Value)
                             throw new ArgumentException($"Incorrect column definition: '{rec}' in create table '{table.TableName}' query.");
-                        table.ColumnList.Add(rm.Groups["colName"].Value, rm.Groups["colType"].Value);
+                        table.ColumnList.Add(rm.Groups["colName"].Value, rm.Groups["colType"].Value.ToUpper());
                     }   
                 }
             }

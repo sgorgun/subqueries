@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using Microsoft.Data.Sqlite;
-using Subqueries.Tests.Helpers;
+using AutocodeDB.Helpers;
 using System;
-using Subqueries.Tests.Models;
+using AutocodeDB.Models;
 using System.IO;
 
 namespace Subqueries.Tests
@@ -103,7 +103,7 @@ namespace Subqueries.Tests
         public void SelectQuery_ContainsSelectFrom([Range(1, FilesCount)] int index)
         {
             var actual = Queries[index - 1];
-            Assert.IsTrue(SelectHelper.ContainsSelectDistinctFrom(actual), "Query should contain 'SELECT' and 'FROM' statements.");
+            Assert.IsTrue(SelectHelper.ContainsSubqueries(actual), "Query should contain 'SELECT' and 'FROM' statements.");
         }
 
         [Test]

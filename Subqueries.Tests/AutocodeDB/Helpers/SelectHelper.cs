@@ -7,23 +7,23 @@ using System.Text.RegularExpressions;
 
 namespace AutocodeDB.Helpers
 {
-    internal class SelectHelper
+    public class SelectHelper
     {
-        private static readonly Regex SelectFromRegex = new Regex(@"\s*SELECT\s+[\w\s\.,\(\)*='\[\]_\-\>\<\!]*\s+FROM", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex AggregationFuncRegex = new Regex(@"((COUNT)|(AVG)|(SUM)|(MIN)|(MAX))\([\w\s\.,\(\)*='\[\]_\-\>\<\!]+\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex JoinRegex = new Regex(@"\s*JOIN\s+([\s\w \[ \] \.]+ON){1}\s+([\s\w \[ \] \.]*[^=]){1}\s*=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex InnerJoinRegex = new Regex(@"\s*INNER\s+JOIN\s+([\s\w \[ \] \.]+ON){1}\s+([\s\.\w \[ \]]*[^=]){1}\s*=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex LeftJoinRegex = new Regex(@"\s*LEFT\s+JOIN\s+[\w\s\.,\(\)*='\[\]_\-\>\<\!]*\s+ON[\w\s\.,\(\)*='\[\]_\-\>\<\!]*[^;]=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SelectFromRegex = new Regex(@"\s*SELECT\s+(.)+?\s+FROM", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SelectRegex = new Regex(@"SELECT\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex AggregationFuncRegex = new Regex(@"((COUNT)|(AVG)|(SUM)|(MIN)|(MAX))\s*\([\w\s\.,\(\)*='\[\]_\-\>\<\!\/\%]+\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex JoinRegex = new Regex(@"\s*JOIN\s+(.)+?\s+ON\s+(.)+?=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex InnerJoinRegex = new Regex(@"\s*INNER\s+JOIN\s+(.)+?\s+ON\s+(.)+?=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex LeftJoinRegex = new Regex(@"\s*LEFT\s+JOIN\s+(.)+?\s+ON\s+(.)+?=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex OrderByRegex = new Regex(@"ORDER\s+BY\s+[^\s]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex GroupByRegex = new Regex(@"GROUP\s+BY\s+[^\s]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex WhereRegex = new Regex(@"\s+WHERE\s+\w+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex WhereIsNullRegex = new Regex(@"\s*WHERE\s+[\w\s\.,\(\)*='\[\]_\-\>\<\!]*((IS NULL)|(IS NOT NULL))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex WhereRegex = new Regex(@"\s+WHERE\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex WhereIsNullRegex = new Regex(@"\s*WHERE\s+(.)+?((IS NULL)|(IS NOT NULL))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex UnionRegex = new Regex(@"\s+UNION\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex DistinctRegex = new Regex(@"\s*DISTINCT\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static bool ContainsSelectFrom(string query) => SelectFromRegex.IsMatch(query);
-        public static bool ContainsSelectDistinctFrom(string query) => SelectFromRegex.IsMatch(query);
-        public static bool ContainsSelectFromAggregate(string query) => SelectFromRegex.IsMatch(query) || AggregationFuncRegex.IsMatch(query);
+        public static bool ContainsAggregationFunctions(string query) => AggregationFuncRegex.IsMatch(query);
         public static bool ContainsJoin(string query) => JoinRegex.IsMatch(query);
         public static bool ContainsInnerJoin(string query) => InnerJoinRegex.IsMatch(query);
         public static bool ContainsLeftJoin(string query) => LeftJoinRegex.IsMatch(query);
@@ -33,6 +33,9 @@ namespace AutocodeDB.Helpers
         public static bool ContainsWhereIsNull(string query) => WhereIsNullRegex.IsMatch(query);
         public static bool ContainsUnion(string query) => UnionRegex.IsMatch(query);
         public static bool ContainsDistinct(string query) => DistinctRegex.IsMatch(query);
+        public static bool ContainsSimpleSelect(string query) => SelectRegex.IsMatch(query);
+        public static bool ContainsSubqueries(string query) => SelectFromRegex.Matches(query).Count > 1;
+
         public static SelectResult[] GetResults(IEnumerable<string> queries)
         {
             var results = new List<SelectResult>();

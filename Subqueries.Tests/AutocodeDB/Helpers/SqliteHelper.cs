@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AutocodeDB.Helpers
 {
-    internal static class SqliteHelper
+    public static class SqliteHelper
     {
         public static SqliteConnection Connection { get; set; }
 
