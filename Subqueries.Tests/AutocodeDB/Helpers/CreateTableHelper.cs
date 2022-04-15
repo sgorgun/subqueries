@@ -10,7 +10,7 @@ namespace AutocodeDB.Helpers
 {
     public static class CreateTableHelper
     {
-        private static readonly Regex CreateRegExp = new Regex(@"^\s*CREATE\sTABLE", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex CreateRegExp = new Regex(@"^\s*CREATE\sTABLE\s\[?[A-Za-z_]*\[?\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex PrimaryKeyRegExp = new Regex(@"\s+PRIMARY\s+KEY", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex ForeignKeyRegExp = new Regex(@"\s+FOREIGN\s+KEY", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex UniqueKeyRegExp = new Regex(@"\s+UNIQUE", RegexOptions.Compiled | RegexOptions.IgnoreCase);
