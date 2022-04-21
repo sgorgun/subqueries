@@ -21,7 +21,12 @@ namespace AutocodeDB.Helpers
         private static readonly Regex WhereIsNullRegex = new Regex(@"\s+FROM\s+(.)+?((\s)|(\])|(\)))+?WHERE((\s)|(\[)|(\())+?(.)+?((\s)|(\))|(\]))((IS NULL)|(IS NOT NULL))((\s+?)|($))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex UnionRegex = new Regex(@"\s+UNION\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex DistinctRegex = new Regex(@"\s+?DISTINCT((\s)|(\[)|(\())+?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex SubSelectRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s((IN)|(JOIN)|(NOT IN))\s*\(\s*SELECT((\s)|(\[)|(\())+?(.)+?\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        /// <summary>
+        /// alternate regex for subqueries! 
+        /// Please dont remove
+        /// </summary>
+        //private static readonly Regex SubSelectRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s((IN)|(JOIN)|(NOT IN)|(>)|(<)|(=)|(<=)|(>=)|(NOT EXISTS)|(EXISTS))\s*\(\s*SELECT((\s)|(\[)|(\())+?(.)+?\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SubSelectRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s*\(\s*SELECT((\s)|(\[)|(\())+?(.)+?\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static bool ContainsSelectFrom(string query) => SelectFromRegex.IsMatch(query);
         public static bool ContainsAggregationFunctions(string query) => AggregationFuncRegex.IsMatch(query);
