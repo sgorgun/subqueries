@@ -43,7 +43,7 @@ namespace AutocodeDB.Helpers
 
         public static bool ContainsOnDeleteCascade(string query) => OnDeleteRegExp.IsMatch(query);
 
-        private static void LoadTables(IEnumerable<string> queries)
+        public static void LoadTables(IEnumerable<string> queries)
         {
             if (_tableMap is { }) 
                 return;
@@ -54,6 +54,8 @@ namespace AutocodeDB.Helpers
                 var table = QueryParser.ParseTable(query);
                 table.SequenceNumber = i;
                 ++i;
+                if(_tableMap.ContainsKey(table.TableName))  
+                    throw new ArgumentException($"Table {table.TableName} alredy exists in Table Map.");
                 _tableMap.Add(table.TableName, table);
             }
         }

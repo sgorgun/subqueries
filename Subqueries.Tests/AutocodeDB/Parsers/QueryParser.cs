@@ -9,7 +9,7 @@ namespace AutocodeDB.Parsers
     {
         private static readonly Regex TableNameMatcher = new Regex(@"\s*CREATE\sTABLE\s\[?(?<tblName>[A-Za-z_]*)\[?\s*",
             RegexOptions.Compiled|RegexOptions.IgnoreCase); 
-        private static readonly Regex ForeignKeyRegExp = new Regex(@"\s+FOREIGN\s+KEY\s*[(](?<localId>[A-Za-z_]*)[)]\s*REFERENCES\s+(?<refTable>[A-Za-z_]*)\s*[(](?<refId>[A-Za-z_]*)[)]",
+        private static readonly Regex ForeignKeyRegExp = new Regex(@"\s+FOREIGN\s+KEY\s*[(]\s*(?<localId>[A-Za-z_]*)\s*[)]\s*REFERENCES\s+(?<refTable>[A-Za-z_]*)\s*[(]\s*(?<refId>[A-Za-z_]*)\s*[)]",
             RegexOptions.Compiled|RegexOptions.IgnoreCase);
         private static readonly Regex ConstraintRegExp = new Regex(@"\s*CONSTRAINT\s",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -32,7 +32,6 @@ namespace AutocodeDB.Parsers
                     TableName = matches.Groups["tblName"].Value
                 };
             var body = ParseTableBody(query);
- 
             body= Regex.Replace(body, multiColumnPattern, "");
             var tblColRow = body.Split(",");
             foreach (var rec in tblColRow)
@@ -51,6 +50,8 @@ namespace AutocodeDB.Parsers
                     {
                         if (null == rm.Groups["colName"].Value || null == rm.Groups["colType"].Value)
                             throw new ArgumentException($"Incorrect column definition: '{rec}' in create table '{table.TableName}' query.");
+                        if (table.ColumnList.ContainsKey(rm.Groups["colName"].Value))
+                            throw new ArgumentException($"Duplicate column name {rm.Groups["colName"].Value} In table {table.TableName}."+table);
                         table.ColumnList.Add(rm.Groups["colName"].Value, rm.Groups["colType"].Value.ToUpper());
                     }   
                 }
