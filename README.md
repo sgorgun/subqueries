@@ -6,7 +6,7 @@
 
 1. Get a list of customers with birthday date range inclusive 1 Jan 2000 – 31 Dec 2010 (date format is YYYY-MM-DD), whom total sum of purchases is higher then average total purchase sum of all authorized customers (last name, first name, total expenses). Sort ascending by total expenses, last name. Scheme of result data set: **surname | name | total_expenses**
  
-1. Get orders for 2021 year, which contain more items per order than the average number of items across all orders. Sort ascendidng by order items amount and order id. Scheme of result data set: **order_id |  items_count**
+1. Get orders for 2021 year, which contain more items per order (not items’ product amount) than the average number of items across all orders. Sort ascendidng by order items amount and order id. Scheme of result data set: **order_id |  items_count**
 
 
 
