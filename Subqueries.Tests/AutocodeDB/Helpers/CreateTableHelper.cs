@@ -5,16 +5,18 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AutocodeDB.Models;
 using AutocodeDB.Parsers;
+using AutocodeDB.SQLTemplates;
 
 namespace AutocodeDB.Helpers
 {
     public static class CreateTableHelper
     {
-        private static readonly Regex CreateRegExp = new Regex(@"^\s*CREATE\sTABLE\s\[?[A-Za-z_]*\[?\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex PrimaryKeyRegExp = new Regex(@"\s+PRIMARY\s+KEY", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex ForeignKeyRegExp = new Regex(@"\s+FOREIGN\s+KEY", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex UniqueKeyRegExp = new Regex(@"\s+UNIQUE", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex OnDeleteRegExp = new Regex(@"\s+ON\s+DELETE\s+CASCADE", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static RegexOptions options = RegexOptions.Compiled | RegexOptions.IgnoreCase;
+        private static readonly Regex CreateRegExp = new Regex(CreateTableEntity.CreateTable,options);
+        private static readonly Regex PrimaryKeyRegExp = new Regex(CreateTableEntity.PrimaryKey,options);
+        private static readonly Regex ForeignKeyRegExp = new Regex(CreateTableEntity.ForeignKey,options);
+        private static readonly Regex UniqueKeyRegExp = new Regex(CreateTableEntity.UniqueKey,options);
+        private static readonly Regex OnDeleteRegExp = new Regex(CreateTableEntity.OnDelete,options);
 
         private static Dictionary<string, DbTable> _tableMap;
         

@@ -2,7 +2,7 @@
 
 namespace AutocodeDB.Helpers
 {
-    public class MessageComposer
+    public static class MessageComposer
     {
         public static string Compose(string[] schema, string[][] data)
         {

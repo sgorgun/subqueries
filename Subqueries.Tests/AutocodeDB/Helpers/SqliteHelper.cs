@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.Sqlite;
-using System.Collections.Generic;
 
 namespace AutocodeDB.Helpers
 {
@@ -83,6 +83,16 @@ namespace AutocodeDB.Helpers
                 ListRes.Add(reader.GetInt32(1));
             }
             return ListRes.ToArray();
+        }
+
+        public static void InsertData(string InsertFile)
+        {
+            var queries = QueryHelper.GetQueries(InsertFile);
+            foreach (var query in queries)
+            {
+                var command = new SqliteCommand(query, SqliteHelper.Connection);
+                command.ExecuteNonQuery();
+            }
         }
 
     }

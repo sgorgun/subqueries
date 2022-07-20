@@ -1,32 +1,34 @@
-﻿using Microsoft.Data.Sqlite;
-using AutocodeDB.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Data.Sqlite;
+using AutocodeDB.Models;
+using AutocodeDB.SQLTemplates;
 
 namespace AutocodeDB.Helpers
 {
-    public class SelectHelper
+    public static class SelectHelper
     {
-        private static readonly Regex SelectFromRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s+FROM[^\w]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex SelectRegex = new Regex(@"SELECT\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex AggregationFuncRegex = new Regex(@"\s((COUNT)|(AVG)|(SUM)|(MIN)|(MAX))\s*\(\s*(.)+?\s*\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex JoinRegex = new Regex(@"((\s)|(\])|(\)))+?JOIN((\s)|(\[)|(\())+?(.)+?((\s)|(\])|(\)))+?ON((\s)|(\[)|(\())+?(.)+?=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex InnerJoinRegex = new Regex(@"((\s)|(\])|(\)))+?INNER\s+JOIN((\s)|(\[)|(\())+?(.)+?((\s)|(\])|(\)))+?ON((\s)|(\[)|(\())+?(.)+?=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex LeftJoinRegex = new Regex(@"((^)|(\s)|(\])|(\)))+?LEFT\s+JOIN((\s)|(\[)|(\())+?(.)+?((\s)|(\])|(\)))+?ON((\s)|(\[)|(\())+?(.)+?=", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex OrderByRegex = new Regex(@"((\s)|(\])|(\)))+?ORDER\s+BY((\s)|(\[)|(\())+?[^\s]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex GroupByRegex = new Regex(@"((\s)|(\])|(\)))+?GROUP\s+BY((\s)|(\[)|(\())+?[^\s]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex WhereRegex = new Regex(@"\s+FROM\s+(.)+?((\s)|(\])|(\)))+?WHERE((\s)|(\[)|(\())+?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex WhereIsNullRegex = new Regex(@"\s+FROM\s+(.)+?((\s)|(\])|(\)))+?WHERE((\s)|(\[)|(\())+?(.)+?((\s)|(\))|(\]))((IS NULL)|(IS NOT NULL))((\s+?)|($))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex UnionRegex = new Regex(@"\s+UNION\s+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex DistinctRegex = new Regex(@"\s+?DISTINCT((\s)|(\[)|(\())+?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static RegexOptions options = RegexOptions.Compiled | RegexOptions.IgnoreCase;
+        private static readonly Regex SelectFromRegex = new Regex(SelectEntity.SelectFrom,options);
+        private static readonly Regex SelectRegex = new Regex(SelectEntity.Select,options);
+        private static readonly Regex AggregationFuncRegex = new Regex(SelectEntity.AggregationFunctions, options);
+        private static readonly Regex JoinRegex = new Regex(SelectEntity.Join, options);
+        private static readonly Regex InnerJoinRegex = new Regex(SelectEntity.InnerJoin, options);
+        private static readonly Regex LeftJoinRegex = new Regex(SelectEntity.LeftJoin, options);
+        private static readonly Regex OrderByRegex = new Regex(SelectEntity.OrderBy, options);
+        private static readonly Regex GroupByRegex = new Regex(SelectEntity.GroupBy, options);
+        private static readonly Regex WhereRegex = new Regex(SelectEntity.Where, options);
+        private static readonly Regex WhereIsNullRegex = new Regex(SelectEntity.WhereIsNull, options);
+        private static readonly Regex UnionRegex = new Regex(SelectEntity.Union, options);
+        private static readonly Regex DistinctRegex = new Regex(SelectEntity.Distinct,options);
         /// <summary>
         /// alternate regex for subqueries! 
         /// Please dont remove
         /// </summary>
-        //private static readonly Regex SubSelectRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s((IN)|(JOIN)|(NOT IN)|(>)|(<)|(=)|(<=)|(>=)|(NOT EXISTS)|(EXISTS))\s*\(\s*SELECT((\s)|(\[)|(\())+?(.)+?\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex SubSelectRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s*\(\s*SELECT((\s)|(\[)|(\())+?(.)+?\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        ///private static readonly Regex SubSelectRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s((IN)|(JOIN)|(NOT IN)|(>)|(<)|(=)|(<=)|(>=)|(NOT EXISTS)|(EXISTS))\s*\(\s*SELECT((\s)|(\[)|(\())+?(.)+?\)",options);
+        private static readonly Regex SubSelectRegex = new Regex(@"\s*SELECT((\s)|(\[)|(\())+?(.)+?\s*\(\s*SELECT((\s)|(\[)|(\())+?(.)+?\)",options);
 
         public static bool ContainsSelectFrom(string query) => SelectFromRegex.IsMatch(query);
         public static bool ContainsAggregationFunctions(string query) => AggregationFuncRegex.IsMatch(query);
@@ -69,40 +71,21 @@ namespace AutocodeDB.Helpers
             return result;
         }
 
-        public static void SerializeResult(SelectResult selectResult, string file)
+        public static SelectResult DumpTable(string name)
         {
-            File.WriteAllText(file, selectResult.ToString());
+            string query = $"SELECT * FROM {name}";
+            return GetResult(query);
         }
-
-        public static SelectResult DeserializeResult(string file)
+        public static SelectResult[] DumpTables(IEnumerable<string> names)
         {
-            if (!File.Exists(file))
-                throw new FileNotFoundException($"The file '{file}' was not found in the 'Data' folder.");
-            var lines = File.ReadAllLines(file);
-            var schema = lines[0].Split(",");
-            var types = lines[1].Split(",");
-            var data = new List<string[]>();
-            for (var i = 2; i < lines.Length; i++)
+            var queries = new List<string>();
+            foreach (var name in names)
             {
-                var line = lines[i];
-                var lineData = line.Split(",");
-
-                for (int j = 0; j < lineData.Length; j++)
-                {
-                    if (string.IsNullOrEmpty(lineData[j]))
-                    {
-                        lineData[j] = null;
-                    }
-                }
-                data.Add(lineData);
+                queries.Add($"SELECT * FROM {name}");
             }
-            return new SelectResult
-            {
-                Schema = schema,
-                Types = types,
-                Data = data.ToArray()
-            };
+            return GetResults(queries);
         }
+
 
         private static SelectResult Read(SqliteDataReader reader)
         {
